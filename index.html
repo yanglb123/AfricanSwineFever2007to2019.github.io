@@ -138,7 +138,11 @@
         //Add histgram
         //
         //--------------------------------------------------------------------
+        var containerDiv = document.getElementById("containerDiv"); //get histogram widget
+        var histogramDiv = document.getElementById("histogram"); //get histogram widget
+        var histogramWidget=null;
         view.when().then(createHistogram);
+       
         function fetchStats(field) {
           const params = {
             layer: layer,
@@ -150,6 +154,7 @@
             summaryStatistics(params)
           ]);
         }
+        
         function createHistogram() {
           //  Other available fields:
           //  temp, salinity, appO2ut, dissO2
@@ -168,24 +173,25 @@
               maxElement.innerText = Math.trunc(histogramResult.maxValue);
 
               // Creates a Histogram instance from the returned histogram result
-              const histogramWidget = Histogram.fromHistogramResult(
+              histogramWidget = Histogram.fromHistogramResult(
                 histogramResult
               );
-              histogramWidget.container = "histogram";
-              histogramWidget.average = Math.trunc(statsResult.avg);
+              histogramWidget.container = histogramDiv;//"histogram";
+              //histogramWidget.average = Math.trunc(statsResult.avg);
               histogramWidget.labelFormatFunction = function(value, type) {
                 return Math.trunc(value);
               };
               // will render lines at the 25th, 50th, 75th, and 99th percentiles
-              histogramWidget.dataLines = [{
-              value: 2012,
-              label: "2012"}]
+              // histogramWidget.dataLines = [{
+              // value: 2012,
+              // label: "2012"}]
             })
             .catch(function(error) {
               console.error(error);
             });
         }
-        view.ui.add("containerDiv", "bottom-right");
+        view.ui.add(containerDiv, "bottom-right");
+        
         /*
         // add a legend for the earthquakes layer
         const histogramExpand = new Expand({
@@ -209,7 +215,7 @@
         var playButton = document.getElementById("playButton");
         var titleDiv = document.getElementById("titleDiv");
         var animation = null;
-
+        
         var slider = new Slider({
           container: "slider",
           min: 2006,
@@ -274,6 +280,9 @@
           sliderValue.innerHTML = Math.floor(value);
           slider.viewModel.setValue(0, value);
           layer.renderer = createRenderer(value);
+          // histogramDiv.histogramWidget.dataLines = [{
+          //      value: 2015,
+          //      label: "2015"}]          
         }
 
         /**
@@ -395,6 +404,8 @@
           stopAnimation();
           animation = animate(slider.values[0]);
           playButton.classList.add("toggled");
+          // will render lines at the 25th, 50th, 75th, and 99th percentiles
+          
         }
 
         /**
@@ -409,7 +420,7 @@
           animation = null;
           playButton.classList.remove("toggled");
         }
-
+        
         /**
          * Animates the color visual variable continously
          */
@@ -428,6 +439,13 @@
             }
 
             setYear(value);
+            
+            year=Math.trunc(value);
+            month=Math.trunc((value-year)*12)+1
+
+            histogramWidget.dataLines = [{
+              value: value,
+              label: year.toString()+"/"+month.toString()}]
 
             // Update at 30fps
             setTimeout(function() {
@@ -504,6 +522,8 @@
             }
           };
         }
+
+        
         
       });
     </script>
@@ -549,6 +569,7 @@
       #histogram {
         width: 300px;
         height: 200px;
+        text-emphasis-color: #ffffff;
       }
 
       #sliderContainer {
@@ -652,9 +673,8 @@
       <div id="viewDiv">       
         <div id="titleDiv" class="esri-widget">      
           <IMG SRC="http://www.fao.org/fileadmin/templates/faoboot/css/img/fao-logo-white.svg" ALT="FAO" WIDTH=250 HEIGHT=50 Background=black></br>
-           African Swine Fever Cases From 2007 to Present       
-        </div>        
-        
+           African Swine Fever Cases From 2007 to Present        
+        </div>                
       </div>
       
       <div id="containerDiv" class="esri-widget">
